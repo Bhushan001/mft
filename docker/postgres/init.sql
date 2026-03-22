@@ -8,6 +8,7 @@ CREATE SCHEMA IF NOT EXISTS chrono_mapper;
 CREATE SCHEMA IF NOT EXISTS chrono_engine;
 CREATE SCHEMA IF NOT EXISTS chrono_orchestrator;
 CREATE SCHEMA IF NOT EXISTS chrono_etl;
+CREATE SCHEMA IF NOT EXISTS chrono_audit;
 
 -- Grant full access on each schema to the application user
 -- (postgres user owns all schemas by default in dev)
@@ -18,3 +19,4 @@ GRANT ALL PRIVILEGES ON SCHEMA chrono_mapper      TO postgres;
 GRANT ALL PRIVILEGES ON SCHEMA chrono_engine      TO postgres;
 GRANT ALL PRIVILEGES ON SCHEMA chrono_orchestrator TO postgres;
 GRANT ALL PRIVILEGES ON SCHEMA chrono_etl         TO postgres;
+GRANT ALL PRIVILEGES ON SCHEMA chrono_audit       TO postgres;

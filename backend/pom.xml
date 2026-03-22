@@ -30,6 +30,7 @@
         <module>engine</module>
         <module>orchestrator</module>
         <module>etl</module>
+        <module>audit-service</module>
     </modules>
 
     <properties>

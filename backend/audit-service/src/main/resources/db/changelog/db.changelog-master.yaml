@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/migrations/001-create-audit-schema.yaml
+  - include:
+      file: db/changelog/migrations/002-create-audit-events.yaml

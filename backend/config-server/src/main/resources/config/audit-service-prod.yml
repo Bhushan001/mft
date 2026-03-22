@@ -1,0 +1,28 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: audit-service
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 3
+      pool-name: AuditHikariPool
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: chrono_audit
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: chrono_audit
+    liquibase-schema: chrono_audit
+
+logging:
+  level:
+    com.chrono.audit: INFO

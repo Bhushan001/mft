@@ -46,6 +46,7 @@ mvn -pl mapper spring-boot:run &
 mvn -pl engine spring-boot:run &
 mvn -pl orchestrator spring-boot:run &
 mvn -pl etl spring-boot:run &
+mvn -pl audit-service spring-boot:run &
 
 # Start gateway last
 mvn -pl api-gateway spring-boot:run &
@@ -101,6 +102,7 @@ All services accept these overrides (used by docker-compose for container networ
 | Engine Service     | 8085 |
 | Orchestrator       | 8086 |
 | ETL Service        | 8087 |
+| Audit Service      | 8088 |
 | Service Registry   | 8761 |
 | Config Server      | 8888 |
 | PostgreSQL         | 5432 |

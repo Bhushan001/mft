@@ -25,6 +25,14 @@ spring:
             allowCredentials: true
             maxAge: 3600
 
+  cloud:
+    gateway:
+      routes:
+        - id: audit-service
+          uri: lb://audit-service
+          predicates:
+            - Path=/api/v1/audit/**
+
 jwt:
   secret: ${JWT_SECRET}
 

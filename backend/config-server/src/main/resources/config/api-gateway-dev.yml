@@ -65,6 +65,11 @@ spring:
           predicates:
             - Path=/api/v1/etl/**
 
+        - id: audit-service
+          uri: lb://audit-service
+          predicates:
+            - Path=/api/v1/audit/**
+
 jwt:
   secret: ${JWT_SECRET:dev-secret-key-chrono-app-change-in-prod-min-32-chars}
 
