@@ -1,0 +1,101 @@
+// =============================================================================
+// TOAST NOTIFICATIONS
+// =============================================================================
+
+.toast-container {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  pointer-events: none;
+  max-width: 400px;
+  width: 100%;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border-left: 4px solid transparent;
+  pointer-events: all;
+  animation: toast-in var(--transition-spring) ease;
+
+  &--success { border-left-color: var(--color-success); }
+  &--error   { border-left-color: var(--color-error); }
+  &--warning { border-left-color: var(--color-warning); }
+  &--info    { border-left-color: var(--color-info); }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+
+    .material-icons,
+    .material-icons-outlined { font-size: 20px; }
+  }
+
+  &--success &__icon { color: var(--color-success); }
+  &--error   &__icon { color: var(--color-error); }
+  &--warning &__icon { color: var(--color-warning); }
+  &--info    &__icon { color: var(--color-info); }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+  }
+
+  &__message {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: var(--color-surface-sunken);
+    }
+
+    .material-icons,
+    .material-icons-outlined { font-size: 16px; }
+  }
+
+  &.leaving {
+    animation: toast-out var(--transition-base) ease forwards;
+  }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(100%) scale(0.9); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(100%) scale(0.9); }
+}

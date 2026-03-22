@@ -1,0 +1,86 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-mapping-rules
+      author: chrono
+      changes:
+        - createTable:
+            schemaName: chrono_mapper
+            tableName: mapping_rules
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: rule_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: tenant_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: version
+                  type: INT
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rule_definition
+                  type: TEXT
+              - column:
+                  name: source_system
+                  type: VARCHAR(100)
+              - column:
+                  name: target_system
+                  type: VARCHAR(100)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+        - createIndex:
+            schemaName: chrono_mapper
+            tableName: mapping_rules
+            indexName: idx_mr_tenant_id
+            columns:
+              - column:
+                  name: tenant_id
+        - createIndex:
+            schemaName: chrono_mapper
+            tableName: mapping_rules
+            indexName: idx_mr_tenant_active
+            columns:
+              - column:
+                  name: tenant_id
+              - column:
+                  name: active

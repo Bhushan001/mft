@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-refresh-tokens
+      author: chrono
+      changes:
+        - createTable:
+            schemaName: chrono_auth
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: token_hash
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: user_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tenant_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revoked
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            schemaName: chrono_auth
+            tableName: refresh_tokens
+            indexName: idx_rt_user_id
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            schemaName: chrono_auth
+            tableName: refresh_tokens
+            indexName: idx_rt_tenant_id
+            columns:
+              - column:
+                  name: tenant_id

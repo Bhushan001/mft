@@ -1,0 +1,39 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: etl-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chrono_db?currentSchema=chrono_etl
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 3
+      pool-name: EtlHikariPool
+  jpa:
+    properties:
+      hibernate:
+        default_schema: chrono_etl
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: chrono_etl
+    liquibase-schema: chrono_etl
+  batch:
+    initialize-schema: never
+    job:
+      enabled: false
+
+async:
+  executor:
+    core-pool-size: 5
+    max-pool-size: 15
+    queue-capacity: 50
+    thread-name-prefix: etl-async-
+
+logging:
+  level:
+    com.chrono.etl: DEBUG
+    org.springframework.batch: INFO

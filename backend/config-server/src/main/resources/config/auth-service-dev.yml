@@ -1,0 +1,41 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chrono_db?currentSchema=chrono_auth
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: AuthHikariPool
+  jpa:
+    properties:
+      hibernate:
+        default_schema: chrono_auth
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: chrono_auth
+    liquibase-schema: chrono_auth
+
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-chrono-app-change-in-prod-min-32-chars}
+  access-token-expiry-ms: 900000      # 15 min
+  refresh-token-expiry-ms: 604800000  # 7 days
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+
+logging:
+  level:
+    com.chrono.auth: DEBUG
+    org.springframework.security: INFO

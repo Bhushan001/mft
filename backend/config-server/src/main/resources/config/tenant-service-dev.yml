@@ -1,0 +1,34 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: tenant-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chrono_db?currentSchema=chrono_tenant
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      pool-name: TenantHikariPool
+  jpa:
+    properties:
+      hibernate:
+        default_schema: chrono_tenant
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: chrono_tenant
+    liquibase-schema: chrono_tenant
+  redis:
+    host: localhost
+    port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000  # 30 min
+
+logging:
+  level:
+    com.chrono.tenant: DEBUG

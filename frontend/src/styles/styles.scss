@@ -1,0 +1,34 @@
+// =============================================================================
+// CHRONO — Global Stylesheet
+//
+// Processing pipeline: Sass → PostCSS (Tailwind + Autoprefixer)
+// @tailwind directives are passed through by Sass as unknown at-rules,
+// then transformed by PostCSS. @import compiles SCSS partials normally.
+// =============================================================================
+
+// 1. Tailwind directives (PostCSS processes these after Sass)
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// 2. Design tokens — CSS custom properties
+@import 'tokens';
+
+// 3. Base / reset
+@import 'base';
+
+// 4. Typography
+@import 'typography';
+
+// 5. Component styles
+@import 'components/buttons';
+@import 'components/forms';
+@import 'components/cards';
+@import 'components/tables';
+@import 'components/badges';
+@import 'components/modals';
+@import 'components/toast';
+@import 'components/sidebar';
+@import 'components/header';
+@import 'components/loading';
+@import 'components/dropdown';

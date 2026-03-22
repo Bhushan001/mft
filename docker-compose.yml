@@ -1,0 +1,307 @@
+version: '3.9'
+
+# ─────────────────────────────────────────────────────────────
+# Chrono Platform — Local Development Stack
+#
+# Startup order:
+#   infrastructure → platform → application services → gateway
+#
+# Usage:
+#   docker compose up -d                  # full stack
+#   docker compose up -d postgres redis   # infra only (run services natively)
+#   docker compose logs -f auth-service
+# ─────────────────────────────────────────────────────────────
+
+x-service-defaults: &service-defaults
+  restart: on-failure
+  networks:
+    - chrono-net
+
+x-spring-defaults: &spring-defaults
+  SPRING_PROFILES_ACTIVE: dev
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  JWT_SECRET: dev-secret-key-chrono-app-change-in-prod-min-32-chars
+  SPRING_ZIPKIN_BASEURL: http://zipkin:9411
+  SPRING_SLEUTH_SAMPLER_PROBABILITY: "1.0"
+
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────
+
+  postgres:
+    <<: *service-defaults
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: chrono_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chrono_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    <<: *service-defaults
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  zipkin:
+    <<: *service-defaults
+    image: openzipkin/zipkin:3
+    ports:
+      - "9411:9411"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9411/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Platform layer ───────────────────────────────────────────
+
+  service-registry:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: service-registry/Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      <<: *spring-defaults
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  config-server:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: config-server/Dockerfile
+    ports:
+      - "8888:8888"
+    environment:
+      <<: *spring-defaults
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  # ── Application services ─────────────────────────────────────
+
+  auth-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: auth-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_auth
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  user-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: user-service/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_users
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  tenant-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: tenant-service/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_tenants
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  mapper-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: mapper/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_mapper
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  engine-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: engine/Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_engine
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8085/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  orchestrator-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: orchestrator/Dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_orchestrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8086/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  etl-service:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: etl/Dockerfile
+    ports:
+      - "8087:8087"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chrono_db?currentSchema=chrono_etl
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8087/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  # ── Gateway ──────────────────────────────────────────────────
+
+  api-gateway:
+    <<: *service-defaults
+    build:
+      context: ./backend
+      dockerfile: api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      <<: *spring-defaults
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+networks:
+  chrono-net:
+    driver: bridge
+
+volumes:
+  postgres-data:

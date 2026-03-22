@@ -1,0 +1,127 @@
+// =============================================================================
+// CARDS
+// =============================================================================
+
+.card {
+  background: var(--color-surface);
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--card-padding);
+    border-bottom: 1px solid var(--color-border);
+    gap: var(--space-md);
+
+    &-title {
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    &-subtitle {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-top: 2px;
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-shrink: 0;
+    }
+  }
+
+  &__body {
+    padding: var(--card-padding);
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: var(--space-md) var(--card-padding);
+    border-top: 1px solid var(--color-border);
+    gap: var(--space-sm);
+    background: var(--color-surface-sunken);
+  }
+
+  // ---- Variants ----
+
+  &--flat {
+    box-shadow: none;
+  }
+
+  &--interactive {
+    cursor: pointer;
+    transition:
+      box-shadow var(--transition-base),
+      border-color var(--transition-base),
+      transform var(--transition-base);
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-border-strong);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  &--highlighted {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary), var(--card-shadow);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Stat card (KPI cards in dashboards)
+// ---------------------------------------------------------------------------
+.stat-card {
+  background: var(--color-surface);
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+
+  &__label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-wider);
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  &__value {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    line-height: 1;
+  }
+
+  &__trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+
+    &--up   { color: var(--color-success); }
+    &--down { color: var(--color-error); }
+    &--flat { color: var(--color-text-secondary); }
+
+    .material-icons,
+    .material-icons-outlined { font-size: 14px; }
+  }
+}

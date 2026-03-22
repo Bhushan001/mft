@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/migrations/001-create-schema.yaml
+  - include:
+      file: db/changelog/migrations/002-create-workflows.yaml
+  - include:
+      file: db/changelog/migrations/003-create-workflow-steps.yaml

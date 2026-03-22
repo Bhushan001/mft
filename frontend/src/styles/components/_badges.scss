@@ -1,0 +1,127 @@
+// =============================================================================
+// BADGES & STATUS INDICATORS
+// =============================================================================
+
+// Base badge mixin — reused by status-badge without @extend
+@mixin badge-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--badge-height);
+  padding: var(--badge-padding);
+  font-size: var(--badge-font-size);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  border-radius: var(--badge-radius);
+  white-space: nowrap;
+
+  .material-icons,
+  .material-icons-outlined { font-size: 10px; }
+}
+
+.badge {
+  @include badge-base;
+
+  // ---- Variants ----
+  &--default {
+    background-color: var(--neutral-100);
+    color: var(--neutral-600);
+  }
+
+  &--primary {
+    background-color: var(--color-primary-muted);
+    color: var(--color-primary);
+  }
+
+  &--success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+  }
+
+  &--warning {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+  }
+
+  &--error,
+  &--danger {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+  }
+
+  &--info {
+    background-color: var(--color-info-bg);
+    color: var(--color-info);
+  }
+
+  // ---- Sizes ----
+  &--md {
+    height: 24px;
+    font-size: var(--font-size-xs);
+    padding: 0 var(--space-xs);
+  }
+
+  &--lg {
+    height: 28px;
+    font-size: var(--font-size-sm);
+    padding: 0 var(--space-sm);
+    border-radius: var(--radius-md);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Status dot (small indicator circle)
+// ---------------------------------------------------------------------------
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+
+  &--active,
+  &--success  { background-color: var(--color-success); }
+  &--warning  { background-color: var(--color-warning); }
+  &--error,
+  &--failed   { background-color: var(--color-error); }
+  &--inactive,
+  &--disabled { background-color: var(--neutral-400); }
+  &--pending  {
+    background-color: var(--color-warning);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+// ---------------------------------------------------------------------------
+// Processing status badge — inline variant map instead of @extend
+// ---------------------------------------------------------------------------
+@mixin status-variant($bg, $color) {
+  background-color: $bg;
+  color: $color;
+}
+
+.status-badge {
+  @include badge-base;
+
+  &[data-status="PENDING"] {
+    @include status-variant(var(--color-warning-bg), var(--color-warning));
+  }
+  &[data-status="IN_PROGRESS"] {
+    @include status-variant(var(--color-info-bg), var(--color-info));
+  }
+  &[data-status="COMPLETED"] {
+    @include status-variant(var(--color-success-bg), var(--color-success));
+  }
+  &[data-status="FAILED"] {
+    @include status-variant(var(--color-error-bg), var(--color-error));
+  }
+  &[data-status="CANCELLED"] {
+    @include status-variant(var(--neutral-100), var(--neutral-600));
+  }
+}

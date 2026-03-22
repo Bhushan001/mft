@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-seed-platform-admin
+      author: chrono
+      comment: >
+        Bootstrap PLATFORM_ADMIN credential.
+        Password: password  (BCrypt strength 10 — change immediately in any non-dev environment)
+        tenant_id: PLATFORM is a sentinel value; PLATFORM_ADMIN users are not scoped to a real tenant.
+      context: "dev,docker"
+      changes:
+        - insert:
+            schemaName: chrono_auth
+            tableName: user_credentials
+            columns:
+              - column:
+                  name: user_id
+                  value: "00000000-0000-0000-0000-000000000001"
+              - column:
+                  name: email
+                  value: "admin@chrono.dev"
+              - column:
+                  name: password_hash
+                  # BCrypt(10) hash of: password  (Spring Security verified test hash)
+                  value: "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG"
+              - column:
+                  name: role
+                  value: "PLATFORM_ADMIN"
+              - column:
+                  name: tenant_id
+                  value: "PLATFORM"
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: failed_login_attempts
+                  valueNumeric: 0
+              - column:
+                  name: created_at
+                  valueDate: "2025-01-01T00:00:00"
+      rollback:
+        - delete:
+            schemaName: chrono_auth
+            tableName: user_credentials
+            where: "user_id = '00000000-0000-0000-0000-000000000001'"

@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────
+# Shared PRODUCTION overrides — inherited by ALL services
+# All secrets MUST come from environment variables.
+# ─────────────────────────────────────────────────────────────
+
+spring:
+  jpa:
+    show-sql: false
+  sleuth:
+    sampler:
+      probability: 0.1          # 10% sampling in prod — tune per traffic volume
+  zipkin:
+    base-url: ${ZIPKIN_BASE_URL:http://zipkin:9411}
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 3000
+        readTimeout: 10000
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n"
+  level:
+    com.chrono: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+
+springdoc:
+  swagger-ui:
+    enabled: false             # disable Swagger UI in production
+  api-docs:
+    enabled: false

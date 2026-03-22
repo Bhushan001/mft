@@ -1,0 +1,83 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-workflows
+      author: chrono
+      changes:
+        - createTable:
+            schemaName: chrono_orchestrator
+            tableName: workflows
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workflow_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: tenant_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: workflow_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: correlation_id
+                  type: VARCHAR(255)
+              - column:
+                  name: input_payload
+                  type: TEXT
+              - column:
+                  name: output_payload
+                  type: TEXT
+              - column:
+                  name: error_message
+                  type: VARCHAR(1000)
+              - column:
+                  name: started_at
+                  type: TIMESTAMP
+              - column:
+                  name: completed_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+        - createIndex:
+            schemaName: chrono_orchestrator
+            tableName: workflows
+            indexName: idx_wf_tenant_id
+            columns:
+              - column:
+                  name: tenant_id
+        - createIndex:
+            schemaName: chrono_orchestrator
+            tableName: workflows
+            indexName: idx_wf_correlation
+            columns:
+              - column:
+                  name: correlation_id

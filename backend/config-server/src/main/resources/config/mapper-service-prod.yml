@@ -1,0 +1,35 @@
+server:
+  port: ${SERVER_PORT:8084}
+
+spring:
+  application:
+    name: mapper-service
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 2
+      pool-name: MapperHikariPool
+  jpa:
+    properties:
+      hibernate:
+        default_schema: chrono_mapper
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: chrono_mapper
+    liquibase-schema: chrono_mapper
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 900000
+
+logging:
+  level:
+    com.chrono.mapper: INFO

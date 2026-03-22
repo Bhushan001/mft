@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-processing-requests
+      author: chrono
+      changes:
+        - createTable:
+            schemaName: chrono_engine
+            tableName: processing_requests
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: request_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: tenant_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: idempotency_key
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: input_payload
+                  type: TEXT
+              - column:
+                  name: output_payload
+                  type: TEXT
+              - column:
+                  name: mapping_rule_id
+                  type: VARCHAR(36)
+              - column:
+                  name: error_message
+                  type: VARCHAR(1000)
+              - column:
+                  name: processed_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+        - addUniqueConstraint:
+            schemaName: chrono_engine
+            tableName: processing_requests
+            columnNames: tenant_id, idempotency_key
+            constraintName: uq_pr_tenant_idempotency
+        - createIndex:
+            schemaName: chrono_engine
+            tableName: processing_requests
+            indexName: idx_pr_tenant_id
+            columns:
+              - column:
+                  name: tenant_id

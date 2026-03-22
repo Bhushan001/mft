@@ -1,0 +1,89 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-etl-jobs
+      author: chrono
+      changes:
+        - createTable:
+            schemaName: chrono_etl
+            tableName: etl_jobs
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: job_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: tenant_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source_ref
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: batch_date
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: input_payload
+                  type: TEXT
+              - column:
+                  name: output_payload
+                  type: TEXT
+              - column:
+                  name: batch_job_instance_id
+                  type: BIGINT
+              - column:
+                  name: batch_job_execution_id
+                  type: BIGINT
+              - column:
+                  name: error_message
+                  type: VARCHAR(1000)
+              - column:
+                  name: submitted_at
+                  type: TIMESTAMP
+              - column:
+                  name: completed_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+        - addUniqueConstraint:
+            schemaName: chrono_etl
+            tableName: etl_jobs
+            columnNames: tenant_id, source_ref, batch_date
+            constraintName: uq_etl_idempotency
+        - createIndex:
+            schemaName: chrono_etl
+            tableName: etl_jobs
+            indexName: idx_etl_tenant_id
+            columns:
+              - column:
+                  name: tenant_id

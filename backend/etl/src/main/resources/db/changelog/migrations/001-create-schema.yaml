@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-etl-schema
+      author: chrono
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS chrono_etl

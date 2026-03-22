@@ -1,0 +1,27 @@
+.login {
+  &__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--space-2xs);
+  }
+
+  &__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--space-lg);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__forgot {
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}

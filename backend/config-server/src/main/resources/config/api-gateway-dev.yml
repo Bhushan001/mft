@@ -1,0 +1,75 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 2
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"]
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+
+        - id: tenant-service
+          uri: lb://tenant-service
+          predicates:
+            - Path=/api/v1/tenants/**
+
+        - id: mapper-service
+          uri: lb://mapper-service
+          predicates:
+            - Path=/api/v1/mappings/**
+
+        - id: engine-service
+          uri: lb://engine-service
+          predicates:
+            - Path=/api/v1/engine/**
+
+        - id: orchestrator-service
+          uri: lb://orchestrator-service
+          predicates:
+            - Path=/api/v1/orchestrator/**
+
+        - id: etl-service
+          uri: lb://etl-service
+          predicates:
+            - Path=/api/v1/etl/**
+
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-chrono-app-change-in-prod-min-32-chars}
+
+logging:
+  level:
+    com.chrono: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: WARN
